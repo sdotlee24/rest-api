@@ -14,7 +14,7 @@
 	<name>Rest-API</name>
 	<description>simple rest api with &quot;get&quot; functionality</description>
 	<properties>
-		<java.version>21</java.version>
+		<java.version>17</java.version>
 	</properties>
 	<dependencies>
 		<dependency>

@@ -26,6 +26,7 @@ class RestApiApplicationTests {
 
 	/**
 	 * Tests if a given JukeBox object fits the requirements of a "setting". expected output: false -> false -> pass
+	 * Method: Set of requirements MUST be a subset of the set containing the component of a given JukeBox.
 	 */
 	@Test
 	void testFitsRequirements() {
@@ -34,8 +35,10 @@ class RestApiApplicationTests {
 		requirements.add("speaker");
 		requirements.add("touchscreen");
 
-		ComponentDTO comp1 = new ComponentDTO("speaker");
-		ComponentDTO comp2 = new ComponentDTO("touchscreen");
+		ComponentDTO comp1 = new ComponentDTO();
+		comp1.setName("speaker");
+		ComponentDTO comp2 = new ComponentDTO();
+		comp2.setName("touchscreen");
 		List<ComponentDTO> case1 = new ArrayList<>();
 		List<ComponentDTO> case2 = new ArrayList<>();
 		case1.add(comp1);

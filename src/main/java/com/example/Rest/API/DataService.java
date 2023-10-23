@@ -72,15 +72,12 @@ public class DataService {
                     }
                 }
                 System.out.println("4 passed");
-                System.out.println(result);
                 //Optional parameter parsing
                 if (model != null && model.length() != 0) {
                     res2 = result.stream().filter(box -> box.getModel().equals(model.toLowerCase())).toList();
                 } else {
                     res2 = result;
                 }
-                System.out.println(res2);
-
                 //input validation for "limit"
                 if (endIndex > res2.size() || limit == 0) {
                     endIndex = res2.size();
@@ -121,7 +118,8 @@ public class DataService {
     }
 
     /**
-     * Indicates weather or not an instance of a Jukebox fits the list of requirements to posess the feature.
+     * <p>Indicates weather or not an instance of a Jukebox fits the list of requirements to possess the feature.
+     * Method: Set of requirements MUST be a subset of the set containing the component of a given JukeBox.</p>
      * @param requirements The list of requirements that a Jukebox must have.
      * @param box An instance of Jukebox.
      * @return A boolean indicating if the Jukebox fits the requirement or not.

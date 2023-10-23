@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
  * @author lsy
  */
 @RestController
-@RequestMapping("/info")
+@RequestMapping("/api")
 public class DataController {
     private final DataService dataService;
 
@@ -30,7 +30,7 @@ public class DataController {
      * @param limit (Optional) Size of the page.
      * @return String containing JukeBoxes that fit the given requirements.
      */
-    @GetMapping("/test")
+    @GetMapping("/jukes")
     public String getJukes(@RequestParam String settingId,
                            @RequestParam(required = false) String model,
                            @RequestParam(defaultValue = "0") int offset,
