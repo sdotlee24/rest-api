@@ -1,7 +1,12 @@
 package com.example.Rest.API;
 
+import dto.JukeBoxDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 
 /**
@@ -28,20 +33,23 @@ public class DataController {
      * @param model (Optional) filter by jukebox model.
      * @param offset (Optional) Starting index of the page.
      * @param limit (Optional) Size of the page.
-     * @return String containing JukeBoxes that fit the given requirements.
+     * @return List containing JukeBoxes that fit the given requirements.
      */
     @GetMapping("/jukes")
-    public String getJukes(@RequestParam String settingId,
-                           @RequestParam(required = false) String model,
-                           @RequestParam(defaultValue = "0") int offset,
-                           @RequestParam(defaultValue = "0") int limit) {
+    public List<JukeBoxDTO> getJukes(@RequestParam String settingId,
+                               @RequestParam(required = false) String model,
+                               @RequestParam(defaultValue = "0") int offset,
+                               @RequestParam(defaultValue = "0") int limit) {
         if (offset < 0) {
-            throw new IllegalArgumentException("Offset must be greater than or equal to  0");
+            throw new ResponseStatusException(HttpStatusCode.valueOf(400), "Offset must be greater than or equal to  0");
         }
         if (limit < 0) {
-            throw new IllegalArgumentException("Limit must be greater than or equal to  0");
+            throw new ResponseStatusException(HttpStatusCode.valueOf(400), "Limit must be greater than or equal to  0");
         }
-
-        return dataService.getJukeBox(settingId, model, offset, limit);
+        List<JukeBoxDTO> boxes = dataService.getJukeBox(settingId, model, offset, limit);
+        if (boxes == null) {
+            throw new ResponseStatusException(HttpStatusCode.valueOf(400), "Invalid query");
+        }
+        return boxes;
     }
 }

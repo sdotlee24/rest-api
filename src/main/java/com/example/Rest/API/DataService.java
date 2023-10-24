@@ -5,9 +5,11 @@ import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -37,9 +39,9 @@ public class DataService {
      * @param model Model name of Jukebox object.
      * @param offset The starting index of the returning list of Jukeboxes.
      * @param limit The size of the jukebox list.
-     * @return
+     * @return List of jukeboxes that fit the given query parameters.
      */
-    public String getJukeBox(String id, String model, int offset, int limit) {
+    public List<JukeBoxDTO> getJukeBox(String id, String model, int offset, int limit) {
 
         int endIndex = offset + limit;
 
@@ -47,7 +49,7 @@ public class DataService {
         String url = dotenv.get("MOCK_ENDPOINT") + "jukes";
         List<String> requirements = getRequirements(id);
         if (requirements == null) {
-            return "Was not able to find setting with id: " + id;
+            throw new ResponseStatusException(HttpStatusCode.valueOf(400), "Could not resolve settingId");
         }
         List<JukeBoxDTO> result = new ArrayList<>();
         List<JukeBoxDTO> res2;
@@ -82,35 +84,54 @@ public class DataService {
                 if (endIndex > res2.size() || limit == 0) {
                     endIndex = res2.size();
                 }
-                return res2.subList(offset, endIndex).toString();
+                return res2.subList(offset, endIndex);
             } else {
-                return "Could not connect to third party api";
+                return null;
             }
 
         } catch (Exception e) {
             System.out.println(e);
-            return e.toString();
+            return null;
         }
+    }
+
+
+    /**
+     * For testing purposes, created a helper method for getRequirements function, that iterates through the list
+     * of settings to find the item that matches "id".
+     * @param settingDTO the Setting object which contains all the information about jukebox settings and their requirements.
+     * @param id The settingId that is being queried.
+     * @return A List of strings which represent the requirements of the particular setting. Null if not found.
+     */
+    public List<String> getSettings(SettingDTO settingDTO, String id) {
+        List<SettingElementDTO> allSettings = settingDTO.getSettings();
+        for (SettingElementDTO specificSetting : allSettings) {
+            System.out.println("THIS is the settingID" + specificSetting.getId());
+            if (specificSetting.getId().equals(id)) {
+                return specificSetting.getRequires();
+            }
+        }
+        return null;
     }
 
     /**
      * Returns all required components of the specific settingId.
      * @param id settingId.
-     * @return An string of array containing all the required components for a JukeBox to possess this feature.
+     * @return An array of strings containing all the required components for a JukeBox to possess this feature.
      */
     public List<String> getRequirements(String id) {
         try {
             String url = dotenv.get("MOCK_ENDPOINT") + "settings";
             SettingDTO settingDTO = restTemplate.getForObject(url, SettingDTO.class);
+            System.out.println(settingDTO);
             if (settingDTO != null) {
-                List<SettingElementDTO> allSettings = settingDTO.getSettings();
-                for (SettingElementDTO specificSetting : allSettings) {
-                    if (specificSetting.getId().equals(id)) {
-                        return specificSetting.getRequires();
-                    }
+                List<String> setting = getSettings(settingDTO, id);
+                if (setting == null) {
+                    return null;
                 }
+                return setting;
             }
-            return null;
+            throw new ResponseStatusException(HttpStatusCode.valueOf(400), "Invalid settingId.");
         }catch (Exception e) {
             System.out.println(e);
         }
